@@ -15,34 +15,47 @@ classifiers = [
     "Programming Language :: Python :: 3",
     
 ]
+requires-python = "~=3.10.0"
 dependencies = [
-    "ipython",
-    "jupyterlab",
     "loguru",
     "matplotlib",
-    "notebook",
     "numpy",
     "pandas",
-    "pip",
-    "pytest",
     "python-dotenv",
-    "ruff",
     "scikit-learn",
     "tqdm",
     "typer",
 ]
-requires-python = "~=3.10.0"
 
+[dependency-groups]
+dev = [
+    "ipython",
+    "jupyterlab",
+    "mypy",
+    "notebook",
+    "pre-commit",
+    "pytest",
+    "ruff",
+]
 
 [tool.ruff]
 line-length = 99
 src = ["sys_des_project"]
 include = ["pyproject.toml", "sys_des_project/**/*.py"]
+exclude = [".venv", "__pycache__", "build", "dist"]
 
 [tool.ruff.lint]
-extend-select = ["I"]  # Add import sorting
+extend-select = ["B", "UP", "I", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["sys_des_project"]
 force-sort-within-sections = true
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
+exclude = ["__pycache__", ".venv", "build", "dist"]
 

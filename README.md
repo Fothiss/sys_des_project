@@ -6,6 +6,46 @@
 
 Study project
 
+## Установка и запуск
+
+### Требования
+
+- Python 3.10
+- [uv](https://docs.astral.sh/uv/) — установка:
+  ```bash
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  ```
+
+### Быстрый старт
+
+```bash
+make setup    # поднять окружение с нуля (venv + все зависимости)
+make check    # прогнать линтер и тайпчекер без исправлений
+```
+
+`make check` возвращает ненулевой код, если есть ошибки стиля или типов.
+
+### Доступные команды
+
+| Команда | Описание |
+|---|---|
+| `make setup` | Создать `.venv` и установить runtime + dev зависимости через `uv sync --all-groups` |
+| `make check` | Ruff (format + lint) и mypy без исправлений. Успех = код 0, ошибки = ненулевой код |
+| `make lint` | Только Ruff, без mypy |
+| `make format` | Автоисправление стиля (меняет файлы) |
+| `make test` | Запустить pytest |
+| `make clean` | Удалить `__pycache__` и `*.pyc` |
+
+### Pre-commit
+
+Хуки устанавливаются один раз:
+
+```bash
+uv run pre-commit install
+```
+
+После этого при каждом `git commit` автоматически прогоняются `ruff` и `mypy`. Коммит с ошибками стиля или типов блокируется.
+
 ## Project Organization
 
 ```
