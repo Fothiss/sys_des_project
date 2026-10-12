@@ -17,6 +17,7 @@ def greet(name: str, excited: bool = False) -> str:
 def main() -> None:
     """Run the debug script."""
     print("main version")
+    print("branch version")
     print(add_numbers(2, 3))
     print(greet("world", excited=True))
 
