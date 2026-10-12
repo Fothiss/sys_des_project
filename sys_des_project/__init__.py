@@ -1,1 +1,1 @@
-from sys_des_project import config  # noqa: F401
+from sys_des_project import config
