@@ -4,6 +4,7 @@
 
 PROJECT_NAME = sys_des_project
 PYTHON_VERSION = 3.10
+VERSION ?= v1
 
 #################################################################################
 # COMMANDS                                                                      #
@@ -50,10 +51,29 @@ clean:
 # PROJECT RULES                                                                 #
 #################################################################################
 
-## Make dataset
+## Start local S3 (RustFS + init bucket)
+.PHONY: s3-up
+s3-up:
+	docker compose up -d
+
+## Stop local S3
+.PHONY: s3-down
+s3-down:
+	docker compose down
+
+## Ingest raw CIFAR-10 archive into S3 (idempotent)
+.PHONY: ingest
+ingest:
+	uv run python -m sys_des_project.ingest
+
+## Run full data pipeline (download -> convert -> split -> stats -> upload)
 .PHONY: data
-data: setup
-	uv run python sys_des_project/dataset.py
+data:
+	uv run python -m sys_des_project.cli download
+	uv run python -m sys_des_project.cli convert
+	uv run python -m sys_des_project.cli split --val-size 5000 --seed 42
+	uv run python -m sys_des_project.cli stats
+	uv run python -m sys_des_project.cli upload --version $(VERSION)
 
 #################################################################################
 # Self Documenting Commands                                                     #

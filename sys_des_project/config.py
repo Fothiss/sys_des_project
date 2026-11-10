@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -30,3 +31,33 @@ try:
     logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True)
 except ModuleNotFoundError:
     pass
+
+# CIFAR-10
+CIFAR_URL = "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
+CIFAR_ARCHIVE_NAME = "cifar-10-python.tar.gz"
+CIFAR_CLASSES = [
+    "airplane",
+    "automobile",
+    "bird",
+    "cat",
+    "deer",
+    "dog",
+    "frog",
+    "horse",
+    "ship",
+    "truck",
+]
+S3_RAW_KEY = f"raw/{CIFAR_ARCHIVE_NAME}"
+S3_PROCESSED_PREFIX = "processed/cifar10"
+
+# RustFS / S3
+RUSTFS_ACCESS_KEY = os.getenv("RUSTFS_ACCESS_KEY")
+RUSTFS_SECRET_KEY = os.getenv("RUSTFS_SECRET_KEY")
+S3_ENDPOINT = os.getenv("S3_ENDPOINT", "http://localhost:9000")
+S3_BUCKET = os.getenv("S3_BUCKET", "cifar10")
+
+if not RUSTFS_ACCESS_KEY or not RUSTFS_SECRET_KEY:
+    raise RuntimeError(
+        "Не найдены RUSTFS_ACCESS_KEY / RUSTFS_SECRET_KEY. "
+        "Проверьте .env или переменные окружения."
+    )

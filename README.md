@@ -97,5 +97,72 @@ uv run pre-commit install
     └── plots.py                <- Code to create visualizations
 ```
 
+
+## Данные
+
+Локальное S3-совместимое хранилище — **RustFS**, поднимается через Docker Compose.
+
+```bash
+make s3-up      # поднять RustFS + создать бакет cifar10
+make s3-down    # остановить (данные в volume сохраняются)
+```
+
+**Где посмотреть содержимое:** веб-консоль http://localhost:9001 (логин/пароль из `.env`), S3 API http://localhost:9000, либо через Python:
+
+```bash
+uv run python -c "
+from sys_des_project.storage import get_s3_client
+from sys_des_project.config import S3_BUCKET
+s3 = get_s3_client()
+for obj in s3.list_objects_v2(Bucket=S3_BUCKET).get('Contents', []):
+    print(obj['Key'], obj['Size'])
+"
+```
+
+**Порядок запуска:**
+
+```bash
+make setup      # установить зависимости (uv sync)
+make s3-up      # поднять хранилище
+make ingest     # скачать CIFAR-10 и залить сырой архив в S3 (идемпотентно)
+make data       # конвейер: download -> convert -> split -> stats -> upload
+make check      # линтер + тайпчекер
+```
+
+`make data` можно запускать с другой версией: `make data VERSION=v2`. Версии в S3 неизменяемы — если `v1` уже существует, `upload` завершится с ошибкой и попросит новую версию.
+
+**Что лежит в S3 после конвейера:**
+
+```text
+s3://cifar10/
+├── raw/
+│   └── cifar-10-python.tar.gz          # исходный архив (~162 MiB)
+└── processed/cifar10/v1/
+    ├── images/                         # 60 000 PNG (32×32)
+    │   ├── train_00000.png ... train_49999.png
+    │   └── test_00000.png  ... test_09999.png
+    ├── annotations/
+    │   ├── train.json                  # 45 000 записей
+    │   ├── val.json                    # 5 000 записей
+    │   └── test.json                   # 10 000 записей
+    ├── stats.json                      # mean/std по каналам (только train)
+    └── manifest.json                   # версия, git-коммит, параметры, размеры и sha256 файлов
+```
+
+**Карточка датасета:**
+
+| Параметр | Значение |
+|---|---|
+| Источник | CIFAR-10, https://www.cs.toronto.edu/~kriz/cifar-10.html |
+| Лицензия | MIT (см. сайт) |
+| Всего изображений | 60 000 |
+| Размер изображения | 32×32, RGB |
+| Классы | 10: airplane, automobile, bird, cat, deer, dog, frog, horse, ship, truck |
+| Исходное разбиение | train 50 000 / test 10 000 |
+| Наше разбиение | train 45 000 / val 5 000 / test 10 000 (стратифицировано, seed=42) |
+| Формат хранения | PNG + JSON-разметка |
+| Нормализация | mean ≈ [0.4911, 0.4821, 0.4464], std ≈ [0.2469, 0.2434, 0.2616] (только train) |
+| Известные проблемы | Низкое разрешение 32×32; визуально близкие классы (cat/dog, automobile/truck); pickle-формат исходных данных небезопасен — открывать только из проверенного источника (md5 сверяется в ingest/download) |
+
 --------
 
