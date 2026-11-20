@@ -189,3 +189,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Локальные чекпоинты и артефакты прогонов
+/runs/
+/models/

@@ -75,6 +75,35 @@ data:
 	uv run python -m sys_des_project.cli stats
 	uv run python -m sys_des_project.cli upload --version $(VERSION)
 
+## Start full infra: S3 + Postgres + MLflow + образ для обучения
+.PHONY: infra-up
+infra-up:
+	mkdir -p runs
+	docker compose up -d --build
+	docker compose build train
+
+## Stop full infra
+.PHONY: infra-down
+infra-down:
+	docker compose down
+
+## Run one experiment in a container (CONFIG=configs/simple_cnn.yaml)
+.PHONY: train
+train:
+	GIT_COMMIT=$$(git rev-parse HEAD 2>/dev/null || echo unknown) \
+		docker compose run --rm -T train python -m sys_des_project.train --config $(CONFIG)
+
+## Run one experiment on the host, without Docker (debug)
+.PHONY: train-local
+train-local:
+	uv run python -m sys_des_project.train --config $(CONFIG)
+
+## Run a grid; каждый прогон — в отдельном контейнере (CONFIG=configs/grid.yaml)
+.PHONY: experiments
+experiments:
+	GIT_COMMIT=$$(git rev-parse HEAD 2>/dev/null || echo unknown) \
+	GRID_RUNNER=docker uv run python -m sys_des_project.grid --config $(CONFIG)
+
 #################################################################################
 # Self Documenting Commands                                                     #
 #################################################################################
