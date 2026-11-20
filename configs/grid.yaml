@@ -1,0 +1,10 @@
+base: configs/simple_cnn.yaml
+
+overrides:                      # применяется ко всем комбинациям
+  experiment_name: cifar10-grid # вся серия — в одном эксперименте трекера
+  data.max_train_samples: 12000 # быстрые прогоны
+  train.epochs: 3
+
+grid:
+  train.lr: [0.0003, 0.001, 0.003]
+  train.batch_size: [64, 128]

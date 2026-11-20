@@ -20,10 +20,14 @@ dependencies = [
     "boto3>=1.43.127",
     "loguru",
     "matplotlib",
+    "mlflow>=3.6,<3.7",
     "numpy",
     "pandas",
     "python-dotenv",
+    "pyyaml>=6.0",
     "scikit-learn",
+    "torch",
+    "torchvision",
     "tqdm",
     "typer",
 ]
@@ -38,6 +42,15 @@ dev = [
     "pytest",
     "ruff",
 ]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
 
 [tool.ruff]
 line-length = 99

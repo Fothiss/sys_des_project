@@ -3,9 +3,10 @@
 import hashlib
 from pathlib import Path
 
-import boto3
 from loguru import logger
 import typer
+
+from sys_des_project.storage import get_s3_client
 
 DEFAULT_BUCKET = "cifar10"
 DEFAULT_KEY = "raw/cifar-10-python.tar.gz"
@@ -37,7 +38,7 @@ def main(
         logger.warning(f"md5 {actual} != {EXPECTED_MD5}, перекачиваю")
 
     logger.info(f"Скачиваю s3://{bucket}/{key} -> {dest}")
-    boto3.client("s3").download_file(bucket, key, str(dest))
+    get_s3_client().download_file(bucket, key, str(dest))
     logger.info("Готово")
 
 
